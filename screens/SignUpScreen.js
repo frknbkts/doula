@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, Button, TextInput,TouchableOpacity, ImageBackgr
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import {auth} from '../firebase.js'
 
-
+// Test
 
 function SignUpScreen({ navigation }) {
     const [email, setEmail] = useState('')
