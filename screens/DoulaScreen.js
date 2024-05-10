@@ -1,9 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, ActivityIndicator, ImageBackground} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
 import Channel from '../components/Channel';
 import { auth } from '../firebase';
 import { getFirestore } from "firebase/firestore"
-import { collection,query, setDoc, getDocs, doc, arrayUnion, updateDoc} from "firebase/firestore"; 
+import { collection, query, setDoc, getDocs, doc, arrayUnion, updateDoc } from "firebase/firestore";
+import { getDoc } from "firebase/firestore";
+
 
 function createCode() {
   let code = '';
@@ -42,125 +44,159 @@ async function joinClub(params) {
 
 
 
-export default function DoulaScreen({navigation}) {
-    const [cClub, setcClub] = useState('');
-    const [jClub, setjClub] = useState('');
-    const [createText, setCreateText] = useState('');
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function DoulaScreen({ navigation }) {
+  const [cClub, setcClub] = useState('');
+  const [jClub, setjClub] = useState('');
+  const [createText, setCreateText] = useState('');
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userType, setUserType] = useState(null);
 
-    useEffect(() => {
-        getData()
-        console.log(data)
-    }, []);
 
-    async function getData(){
-      // , where("name", "==", "kitap")
-      let s = []
-      const q = query(collection(db, "doula"));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-          doc.data().user.forEach((i) =>{
-            console.log(i)
-            if(i == auth.currentUser?.email)
-              s = [...s,doc.data()];
-          })
-      });
-      setData(s)
-      setLoading(false)
+  useEffect(() => {
+    const fetchData = async () => {
+      await getUserData(); // Fetch user data and update userType
+      getData(); // Fetch initial data
+    };
+
+    fetchData(); // Call fetchData when component mounts
+    console.log(data)
+  }, []);
+
+  async function getUserData() {/// AAAAA
+    try {
+      console.log(auth.currentUser.uid);
+      const docRef = doc(db, "users", auth.currentUser.uid);
+      const docSnapshot = await getDoc(docRef);
+      if (docSnapshot.exists()) {
+        // Access the role field from the document data
+        const role = docSnapshot.data().role;
+        console.log(role);
+        setUserType(role);
+        console.log("User role:", userType);
+
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.log("Error in get user data:", error);
     }
+  }
 
-    const handleSingOut = () => {
-      auth.signOut()
-          .then(() => {
-              navigation.replace("Login")
-          })
-          .catch(error => alert(error.message))
-    }
+  async function getData() {
+    // , where("name", "==", "kitap")
+    let s = []
+    const q = query(collection(db, "doula"));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      doc.data().user.forEach((i) => {
+        console.log(i)
+        if (i == auth.currentUser?.email)
+          s = [...s, doc.data()];
+      })
+    });
+    setData(s)
+    setLoading(false)
+  }
 
-    return (
-      <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
-        <View style={styles.banner}><Text style={styles.txt}>Periodes</Text></View>
-        
-        <View style={styles.flex2}>
+  const handleSingOut = () => {
+    auth.signOut()
+      .then(() => {
+        navigation.replace("Login")
+      })
+      .catch(error => alert(error.message))
+  }
 
-          <Text>{createText}</Text>
-          
-          <View style= {styles.row}>
-            <TextInput id='createInput' style= {styles.input}
-                placeholder="Period Name"
-                value= {cClub}
-                onChangeText={text => setcClub(text)}
+  return (
+    <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
+      <View style={styles.banner}><Text style={styles.txt}>Periodes</Text></View>
+
+      <View style={styles.flex2}>
+
+        <Text>{createText}</Text>
+
+        <View style={styles.createContainer}></View>
+
+
+        {userType !== "pregnant" && (
+          <View style={styles.row}>
+            <TextInput
+              id='createInput'
+              style={styles.input}
+              placeholder="Period Name"
+              value={cClub}
+              onChangeText={text => setcClub(text)}
             />
-           
-            <TouchableOpacity style={styles.create} 
-              onPress={()=>{
-                if(cClub.length > 2)
-                {
-                  CreateClub(cClub)
-                  setCreateText('Period was Created.')
-                  setcClub("")
+            <TouchableOpacity
+              style={styles.create}
+              onPress={() => {
+                if (cClub.length > 2) {
+                  CreateClub(cClub);
+                  setCreateText('Period was Created.');
+                  setcClub("");
+                } else {
+                  setCreateText('Period name is too short.');
                 }
-                else{
-                  setCreateText('Period name is so short.')
-                }
-                
-                getData()
-              }
-              }>
+                getData();
+              }}
+            >
               <Text style={styles.txt}>Create</Text>
             </TouchableOpacity>
           </View>
-          
-          <View style= {styles.row}>
-            <TextInput style= {styles.input}
-                placeholder="Period Code"
-                value= {jClub}
-                onChangeText={text => {
-                  setjClub(text)
-                  }                
-                }
-            />
-            <TouchableOpacity style={styles.create}
-            onPress={()=> {
+        )}
+
+
+
+        <View style={styles.row}>
+          <TextInput style={styles.input}
+            placeholder="Period Code"
+            value={jClub}
+            onChangeText={text => {
+              setjClub(text)
+            }
+            }
+          />
+          <TouchableOpacity style={styles.create}
+            onPress={() => {
               joinClub(jClub)
               setCreateText('Joined the Period.')
-              getData()}
+              getData()
             }
-            ><Text style={styles.txt}>Join</Text></TouchableOpacity>
-          </View>
+            }
+          ><Text style={styles.txt}>Join</Text></TouchableOpacity>
         </View>
-        
-        <View style={styles.flex6}>
+      </View>
+
+      <View style={styles.flex6}>
         {loading ? (
           <ActivityIndicator
             visible={loading}
             textContent={'Loading...'}
-            size="large" 
+            size="large"
             color="#ff0000"
           />
         ) : (
-        <FlatList
-            style = {styles.fltlist}
+          <FlatList
+            style={styles.fltlist}
             data={data}
             keyExtractor={({ item }, index) => index}
             renderItem={({ item }, index) => (
-                <Channel key={index} onPress={() => navigation.navigate('Mesajlar')}
-                  clubname={item.name}  clubcode = {item.code} navigation={navigation}
-                />
+              <Channel key={index} onPress={() => navigation.navigate('Mesajlar')}
+                clubname={item.name} clubcode={item.code} navigation={navigation}
+              />
             )}
-        />
+          />
         )}
-        </View>
-        
-        <Text>{auth.currentUser?.email}</Text>
-        <TouchableOpacity onPress={handleSingOut}>
-              <Text style={styles.txtred}>SIGN OUT</Text>  
-        </TouchableOpacity>
-      
-      </ImageBackground>
-     
-    );
+      </View>
+
+      <Text>{auth.currentUser?.email}</Text>
+      <TouchableOpacity onPress={handleSingOut}>
+        <Text style={styles.txtred}>SIGN OUT</Text>
+      </TouchableOpacity>
+
+    </ImageBackground>
+
+  );
 }
 
 const styles = StyleSheet.create({
@@ -180,26 +216,32 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 10
   },
-  create:{
+  createContainer: {
+    marginTop: 10, // Adjust the margin as needed
+    marginBottom: 10, // Adjust the margin as needed
+    width: '90%',
+  },
+  create: {
     flex: 1,
     backgroundColor: '#EF3939',
     color: '#fff',
     borderRadius: 10,
     alignItems: 'center',
-    fontSize: 30, 
+    fontSize: 30,
     // background color must be set
   },
   txt: {
     fontSize: 30,
     color: '#ffffff',
-    
+
   },
-  row:{
+  row: {
     flexDirection: 'row',
     marginBottom: 20,
-    width: '90%'
+    width: '90%',
+    gap: 5
   },
-  input:{
+  input: {
     flex: 2,
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -208,24 +250,24 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10
   },
-  fltlist:{
+  fltlist: {
     width: '90%',
     margin: 20,
     borderRadius: 10,
   },
-  flex2:{
-    flex:2,
+  flex2: {
+    flex: 2,
     alignItems: 'center',
     width: '100%'
   },
-  flex6:{
+  flex6: {
     flex: 6,
     width: '100%',
   },
-  deleteClub:{
+  deleteClub: {
     backgroundColor: '#9BCCBA',
     width: 30,
-    height:30,
+    height: 30,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 50,
@@ -233,7 +275,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0
   },
-  txtred:{
+  txtred: {
     fontSize: 30,
     color: '#ff0000',
   }
