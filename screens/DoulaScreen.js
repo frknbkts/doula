@@ -71,15 +71,15 @@ export default function DoulaScreen({ navigation }) {
       if (docSnapshot.exists()) {
         // Access the role field from the document data
         const role = docSnapshot.data().role;
-        console.log(role);
+
         setUserType(role);
-        console.log("User role:", userType);
+        console.log("User role: ", role);
 
       } else {
         console.log("No such document!");
       }
     } catch (error) {
-      console.log("Error in get user data:", error);
+      console.log("Error in get user data: ", error);
     }
   }
 

@@ -43,11 +43,13 @@ function SignUpScreen({ navigation }) {
                 .then(async (userCredential) => {
                   const db = getFirestore();
                   const uid = userCredential.user.uid
+                  const accountCreationTime = new Date(); // Get the current time
 
                   try {
                     await setDoc(doc(db, "users",uid), {
                       user: email,
                       role: "pregnant",
+                      creationTime: accountCreationTime // Add the creation time as a field
                     });
                   } catch (e) {
                     console.log("Error adding user info: ", e);

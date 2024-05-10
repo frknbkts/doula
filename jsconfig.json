@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "target": "ES6", // Specify the target ECMAScript version
+      "module": "commonjs", // Specify module code generation
+      "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+      "baseUrl": ".", // Base directory to resolve non-relative module names
+      "paths": {
+        // Map module names to paths relative to the baseUrl
+        "*": ["src/*"]
+      }
+    },
+    "exclude": ["node_modules"] // Exclude node_modules directory from being included in the project
+  }
+  
