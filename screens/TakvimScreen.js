@@ -5,7 +5,11 @@ import { auth } from '../firebase';
 import { doc, onSnapshot, getFirestore, updateDoc, arrayRemove } from "firebase/firestore";
 import * as Clipboard from 'expo-clipboard';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
-import { getDoc } from "firebase/firestore";
+import { getDoc, setDoc } from "firebase/firestore";
+import { arrayUnion, writeBatch } from "firebase/firestore";
+
+
+
 
 
 const db = getFirestore();
@@ -34,6 +38,136 @@ export default function TakvimScreen({ route, navigation }) {
   }, []);
   const [userType, setUserType] = useState(null);
   const [creationTime, setCreationTime] = useState(null);
+  const [markedDates, setMarkedDates] = useState({});
+  const [startingDay, setStartingDay] = useState(null);
+  const [mode, setMode] = useState('start');
+  const [selectedDateRanges, setSelectedDateRanges] = useState([]);
+  const [currentRange, setCurrentRange] = useState([]);
+
+
+  const handleDayPress = (day) => {
+    const { dateString } = day;
+
+    if (mode === 'start') {
+      // Set the selected day as the starting day
+      setMarkedDates({ ...markedDates, [dateString]: { startingDay: true, color: '#50cebb' } });
+      setStartingDay(dateString);
+      setMode('end');
+    } else if (mode === 'end') {
+      const startDate = new Date(startingDay);
+      const endDate = new Date(dateString);
+
+      if (endDate >= startDate) {
+        // Calculate the days between the start and end dates
+        const daysInBetween = getDaysInBetween(startDate, endDate);
+
+        // Create an array to store the days in the selected range
+        const range = daysInBetween.map((date) => date.toISOString().split('T')[0]);
+
+        // Add the selected range to the current range
+        setCurrentRange([...currentRange, ...range]);
+
+        // Mark the days in the selected range
+        const updatedMarkedDates = { ...markedDates };
+        range.forEach((date) => {
+          updatedMarkedDates[date] = { color: '#70d7c7', textColor: 'white' };
+        });
+        updatedMarkedDates[startingDay].startingDay = true;
+        updatedMarkedDates[dateString].endingDay = true;
+
+        setMarkedDates(updatedMarkedDates);
+        setStartingDay(null);
+        setMode('start');
+      } else {
+        // If the end date is before the start date, reset the mode and marking
+        setMarkedDates({});
+        setStartingDay(null);
+        setMode('start');
+      }
+    }
+  };
+
+  const getDaysInBetween = (startDate, endDate) => {
+    const days = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      days.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return days;
+  };
+
+  const FetchAllRanges = async () => {
+    try {
+      // Get the document snapshot for the specified doula code
+      const docRef = doc(db, "doula", code);
+      const docSnapshot = await getDoc(docRef);
+  
+      if (docSnapshot.exists()) {
+        // Extract the marked dates data from the document snapshot
+        const fetchedMarkedDates = docSnapshot.data().markedDates || [];
+  
+        // Convert the fetched data into the desired format
+        const transformedMarkedDates = fetchedMarkedDates.reduce((acc, dateObj) => {
+          const { date, ...rest } = dateObj;
+          acc[date] = rest;
+          return acc;
+        }, {});
+  
+        // Update the markedDates state with the transformed data
+        setMarkedDates(transformedMarkedDates);
+  
+        console.log("Marked dates fetched successfully:", transformedMarkedDates);
+      } else {
+        console.log("Document does not exist");
+      }
+    } catch (error) {
+      console.error("Error fetching marked dates:", error);
+      // Handle the error as needed
+    }
+  };
+
+  const PRINTOS = async () => {
+    console.log(markedDates);
+      
+  };
+
+
+  const uploadAllRanges = async () => {
+    console.log("Upload all ranges button pressed");
+    try {
+      const batch = [];
+
+      // Iterate over the markedDates state
+      for (const date in markedDates) {
+        const { startingDay, endingDay, color } = markedDates[date];
+        const dateData = {
+          date,
+          startingDay: !!startingDay, // Convert to boolean
+          endingDay: !!endingDay, // Convert to boolean
+          color: color || 'default_color' // Default color if not provided
+        };
+
+        // Push each marked date to the batch
+        batch.push(dateData);
+      }
+
+      // Upload the batch to Firestore
+      const ref = doc(db, "doula", code);
+      await updateDoc(ref, {
+        markedDates: batch
+      });
+
+      console.log("Marked dates uploaded successfully.");
+    } catch (error) {
+      console.error("Error uploading ranges: ", error);
+    }
+  };
+
+
+
 
 
   const copyToClipboard = () => {
@@ -63,7 +197,7 @@ export default function TakvimScreen({ route, navigation }) {
       if (docSnapshot.exists()) {
         // Access the role field from the document data
         const role = docSnapshot.data().role;
-        const creationTime = docSnapshot.data().creationTime;
+        const creationTime = docSnapshot.data().creationTime.toDate();
         setUserType(role);
         setCreationTime(creationTime);
 
@@ -92,30 +226,22 @@ export default function TakvimScreen({ route, navigation }) {
 
       <View style={styles.flex5}>
         <Text style={styles.txt}>{name} Nurse</Text>
-
-
         <Calendar
-          // Callback which gets executed when visible months change in scroll view. Default = undefined
-          onVisibleMonthsChange={(months) => { console.log('now these months are visible', months); }}
-          // Max amount of months allowed to scroll to the past. Default = 50
-          pastScrollRange={50}
-          // Max amount of months allowed to scroll to the future. Default = 50
-          futureScrollRange={50}
-          // Enable or disable scrolling of calendar list
-          scrollEnabled={true}
-          // Enable or disable vertical scroll indicator. Default = false
-          showScrollIndicator={true}
+          onDayPress={handleDayPress}
           markingType={'period'}
-          markedDates={{
-            '2024-05-15': { marked: true, dotColor: '#50cebb' },
-            '2024-05-21': { startingDay: true, color: '#50cebb', textColor: 'white' },
-            '2024-05-22': { color: '#70d7c7', textColor: 'white' },
-            '2024-05-23': { color: '#70d7c7', textColor: 'white', marked: true },
-            '2024-05-24': { color: '#70d7c7', textColor: 'white' },
-            '2024-05-25': { endingDay: true, color: '#50cebb', textColor: 'white' }
-          }
-          }
+          markedDates={markedDates}
         />
+
+
+        {mode !== 'end' && (
+          <TouchableOpacity style={styles.taskBtn} onPress={uploadAllRanges}>
+            <Text style={styles.txt}>Upload All Ranges</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity style={styles.taskBtn} onPress={FetchAllRanges}>
+          <Text style={styles.txt}>Fetch Ranges</Text>
+        </TouchableOpacity>
 
       </View>
 
@@ -137,6 +263,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#9BCCBA',
     alignItems: 'center',
     width: '100%'
+  },
+  taskBtn: {
+    backgroundColor: '#E2E2E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
+    borderRadius: 5,
+    width: '70%'
   },
   banner: {
     backgroundColor: 'white',
