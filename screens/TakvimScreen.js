@@ -8,6 +8,8 @@ import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 import { getDoc, setDoc } from "firebase/firestore";
 import { arrayUnion, writeBatch } from "firebase/firestore";
 import DropDownPicker from 'react-native-dropdown-picker';
+import { Image } from 'react-native';
+
 
 
 
@@ -44,7 +46,6 @@ export default function TakvimScreen({ route, navigation }) {
   const [markedDates, setMarkedDates] = useState({});
   const [startingDay, setStartingDay] = useState(null);
   const [mode, setMode] = useState('start');
-  const [selectedDateRanges, setSelectedDateRanges] = useState([]);
   const [currentRange, setCurrentRange] = useState([]);
   const [examinationType, setExaminationType] = useState('BPUT');
 
@@ -65,6 +66,11 @@ export default function TakvimScreen({ route, navigation }) {
 
 
   const handleDayPress = (day) => {
+
+    if(userType !== 'doctor')
+      return false
+
+
     const { dateString } = day;
     let color = '#59CF35'
     if (examinationType === 'AU')
@@ -129,7 +135,7 @@ export default function TakvimScreen({ route, navigation }) {
     return days;
   };
 
-  const FetchAllRanges = async () => {
+  const fetchAllRanges = async () => {
     try {
       // Get the document snapshot for the specified doula code
       const docRef = doc(db, "doula", code);
@@ -159,9 +165,11 @@ export default function TakvimScreen({ route, navigation }) {
     }
   };
 
-  const PRINTOS = async () => {
-    console.log(markedDates);
+  
 
+  const clearCalendar = async () => {
+    setMarkedDates(null)
+    console.log("Cleared successfully");
   };
 
 
@@ -204,14 +212,12 @@ export default function TakvimScreen({ route, navigation }) {
     Clipboard.setString(code);
   };
 
-  const fetchCopiedText = async () => {
-    const text = await Clipboard.getString();
-    setCopiedText(text);
-  };
+
 
   useEffect(() => {
     const fetchData = async () => {
       await getUserData(); // Fetch user data and update userType
+      if (userType !== 'doctor') fetchAllRanges()
     };
 
     fetchData(); // Call fetchData when component mounts
@@ -258,41 +264,67 @@ export default function TakvimScreen({ route, navigation }) {
       </View>
 
       <View style={styles.flex5}>
-        <Text style={styles.txt}>{name} Nurse</Text>
+        <Text style={styles.calendar}>{name} Nurse</Text>
         <Calendar
-          onDayPress={handleDayPress}
+          style={styles.txt}
+
+          
+            onDayPress = { handleDayPress }
+   
+
           markingType={'period'}
           markedDates={markedDates}
         />
 
-        <View style={styles.comboBox}>
-          <DropDownPicker
-            open={open}
-            value={examinationType}
-            items={[
-              { label: 'Blood pressure & urine tests', value: 'BPUT' },
-              { label: 'Anatomy ultrasound.', value: 'AU' },
-              { label: 'Birth plan discussion.', value: 'BPD' }
-            ]}
-            setOpen={setOpen}
-            setValue={setExaminationType}
 
-          />
+        <View style={styles.flex7}>
+          {userType === 'doctor' && (
+            <View style={styles.comboBox}>
+              <DropDownPicker
+                open={open}
+                value={examinationType}
+                items={[
+                  { label: 'Blood pressure & urine tests', value: 'BPUT' },
+                  { label: 'Anatomy ultrasound.', value: 'AU' },
+                  { label: 'Birth plan discussion.', value: 'BPD' }
+                ]}
+                setOpen={setOpen}
+                setValue={setExaminationType}
+
+              />
+            </View>
+          )}
+
+
+          {userType === 'doctor' && (
+            <View style={styles.flex6}>
+
+              {mode !== 'end' && (
+                <TouchableOpacity style={styles.taskBtn} onPress={uploadAllRanges}>
+                  <Text style={styles.txt2}>Upload All Ranges</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity style={styles.taskBtn} onPress={fetchAllRanges}>
+                <Text style={styles.txt2}>Fetch Ranges</Text>
+              </TouchableOpacity>
+
+
+              <TouchableOpacity style={styles.taskBtn} onPress={clearCalendar}>
+                <Text style={styles.txt2}>Clear Calendar</Text>
+              </TouchableOpacity>
+
+            </View>
+          )}
+
+          {userType !== 'doctor' && (
+            <Image
+              source={require('../assets/Colors Instruction.jpeg')} // Local image
+              // source={{ uri: 'https://example.com/image.jpg' }} // Remote image
+              style={{ width: '100%', height: '50%' }} // Adjust the width and height as needed
+            />
+          )}
         </View>
-
-
-        <View style={styles.flex6}>
-        {mode !== 'end' && (
-          <TouchableOpacity style={styles.taskBtn} onPress={uploadAllRanges}>
-            <Text style={styles.txt2}>Upload All Ranges</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity style={styles.taskBtn} onPress={FetchAllRanges}>
-          <Text style={styles.txt2}>Fetch Ranges</Text>
-        </TouchableOpacity>
-        </View>
-
         {/* 
 
         Blood pressure & urine tests. #59CF35  BPUT
@@ -304,10 +336,6 @@ export default function TakvimScreen({ route, navigation }) {
         Birth plan discussion. #5063CE  BPD
         
         */}
-
-
-
-
 
 
       </View>
@@ -329,6 +357,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+
   },
   container: {
     flex: 1,
@@ -356,6 +385,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: 'red'
   },
+
   txt2: {
     fontSize: 25,
     color: 'black',
@@ -377,8 +407,12 @@ const styles = StyleSheet.create({
     width: '90%'
   },
   flex6: {
-
     gap: 3
+  },
+
+  flex7: {
+    paddingTop: 5,
+    gap: 55
   },
   tinyLogo: {
     width: 35,
