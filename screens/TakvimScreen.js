@@ -7,6 +7,9 @@ import * as Clipboard from 'expo-clipboard';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 import { getDoc, setDoc } from "firebase/firestore";
 import { arrayUnion, writeBatch } from "firebase/firestore";
+import DropDownPicker from 'react-native-dropdown-picker';
+
+
 
 
 
@@ -43,14 +46,41 @@ export default function TakvimScreen({ route, navigation }) {
   const [mode, setMode] = useState('start');
   const [selectedDateRanges, setSelectedDateRanges] = useState([]);
   const [currentRange, setCurrentRange] = useState([]);
+  const [examinationType, setExaminationType] = useState('Blood pressure & urine tests');
+
+
+
+  /* COlORS
+
+    Blood pressure & urine tests. #59CF35  BPUT
+
+    Routine check-up
+
+    Anatomy ultrasound. #50cebb  AU
+
+    Birth plan discussion. #5063CE  BPD
+
+
+  */
 
 
   const handleDayPress = (day) => {
     const { dateString } = day;
+    let color = '#59CF35'
+    if (examinationType === 'AU')
+      color = '#50cebb'
+
+    else if (examinationType === 'BPD')
+      color = '#5063CE'
+
+
+    console.log("Examination Type: " + examinationType);
+    console.log("Color: " + color);
 
     if (mode === 'start') {
       // Set the selected day as the starting day
-      setMarkedDates({ ...markedDates, [dateString]: { startingDay: true, color: '#50cebb' } });
+
+      setMarkedDates({ ...markedDates, [dateString]: { startingDay: true, color: color } });
       setStartingDay(dateString);
       setMode('end');
     } else if (mode === 'end') {
@@ -70,7 +100,7 @@ export default function TakvimScreen({ route, navigation }) {
         // Mark the days in the selected range
         const updatedMarkedDates = { ...markedDates };
         range.forEach((date) => {
-          updatedMarkedDates[date] = { color: '#70d7c7', textColor: 'white' };
+          updatedMarkedDates[date] = { color: color, textColor: 'white' };
         });
         updatedMarkedDates[startingDay].startingDay = true;
         updatedMarkedDates[dateString].endingDay = true;
@@ -104,21 +134,21 @@ export default function TakvimScreen({ route, navigation }) {
       // Get the document snapshot for the specified doula code
       const docRef = doc(db, "doula", code);
       const docSnapshot = await getDoc(docRef);
-  
+
       if (docSnapshot.exists()) {
         // Extract the marked dates data from the document snapshot
         const fetchedMarkedDates = docSnapshot.data().markedDates || [];
-  
+
         // Convert the fetched data into the desired format
         const transformedMarkedDates = fetchedMarkedDates.reduce((acc, dateObj) => {
           const { date, ...rest } = dateObj;
           acc[date] = rest;
           return acc;
         }, {});
-  
+
         // Update the markedDates state with the transformed data
         setMarkedDates(transformedMarkedDates);
-  
+
         console.log("Marked dates fetched successfully:", transformedMarkedDates);
       } else {
         console.log("Document does not exist");
@@ -131,7 +161,7 @@ export default function TakvimScreen({ route, navigation }) {
 
   const PRINTOS = async () => {
     console.log(markedDates);
-      
+
   };
 
 
@@ -212,6 +242,9 @@ export default function TakvimScreen({ route, navigation }) {
     }
   }
 
+  const [open, setOpen] = useState(false);
+
+
 
   return (
 
@@ -243,6 +276,37 @@ export default function TakvimScreen({ route, navigation }) {
           <Text style={styles.txt}>Fetch Ranges</Text>
         </TouchableOpacity>
 
+
+        {/* 
+
+        Blood pressure & urine tests. #59CF35  BPUT
+
+        Routine check-up
+
+        Anatomy ultrasound. #50cebb  AU
+
+        Birth plan discussion. #5063CE  BPD
+        
+        */}
+
+
+
+
+        <View style={styles.comboBox}>
+          <DropDownPicker
+            open={open}
+            value={examinationType}
+            items={[{ label: 'Blood pressure & urine tests', value: 'BPUT' },
+            { label: 'Anatomy ultrasound.', value: 'AU' },
+            { label: 'Birth plan discussion.', value: 'BPD' }]}
+            setOpen={setOpen}
+            setValue={setExaminationType}
+
+          />
+        </View>
+
+
+
       </View>
 
       <View style={styles.flex1}>
@@ -258,6 +322,11 @@ export default function TakvimScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  comboBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#9BCCBA',
