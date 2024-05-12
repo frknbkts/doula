@@ -50,7 +50,7 @@ export default function DoulaScreen({ navigation }) {
   const [createText, setCreateText] = useState('');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userType, setUserType] = useState(null);
+  const [userType, setUserType] = useState('pregnant');
 
 
   useEffect(() => {
