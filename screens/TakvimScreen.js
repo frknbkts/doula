@@ -46,7 +46,7 @@ export default function TakvimScreen({ route, navigation }) {
   const [mode, setMode] = useState('start');
   const [selectedDateRanges, setSelectedDateRanges] = useState([]);
   const [currentRange, setCurrentRange] = useState([]);
-  const [examinationType, setExaminationType] = useState('Blood pressure & urine tests');
+  const [examinationType, setExaminationType] = useState('BPUT');
 
 
 
@@ -265,17 +265,33 @@ export default function TakvimScreen({ route, navigation }) {
           markedDates={markedDates}
         />
 
+        <View style={styles.comboBox}>
+          <DropDownPicker
+            open={open}
+            value={examinationType}
+            items={[
+              { label: 'Blood pressure & urine tests', value: 'BPUT' },
+              { label: 'Anatomy ultrasound.', value: 'AU' },
+              { label: 'Birth plan discussion.', value: 'BPD' }
+            ]}
+            setOpen={setOpen}
+            setValue={setExaminationType}
 
+          />
+        </View>
+
+
+        <View style={styles.flex6}>
         {mode !== 'end' && (
           <TouchableOpacity style={styles.taskBtn} onPress={uploadAllRanges}>
-            <Text style={styles.txt}>Upload All Ranges</Text>
+            <Text style={styles.txt2}>Upload All Ranges</Text>
           </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.taskBtn} onPress={FetchAllRanges}>
-          <Text style={styles.txt}>Fetch Ranges</Text>
+          <Text style={styles.txt2}>Fetch Ranges</Text>
         </TouchableOpacity>
-
+        </View>
 
         {/* 
 
@@ -291,19 +307,6 @@ export default function TakvimScreen({ route, navigation }) {
 
 
 
-
-        <View style={styles.comboBox}>
-          <DropDownPicker
-            open={open}
-            value={examinationType}
-            items={[{ label: 'Blood pressure & urine tests', value: 'BPUT' },
-            { label: 'Anatomy ultrasound.', value: 'AU' },
-            { label: 'Birth plan discussion.', value: 'BPD' }]}
-            setOpen={setOpen}
-            setValue={setExaminationType}
-
-          />
-        </View>
 
 
 
@@ -339,7 +342,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 5,
     borderRadius: 5,
-    width: '70%'
+    width: '100%',
+    paddingBottom: 10
   },
   banner: {
     backgroundColor: 'white',
@@ -351,6 +355,11 @@ const styles = StyleSheet.create({
   txt: {
     fontSize: 25,
     color: 'red'
+  },
+  txt2: {
+    fontSize: 25,
+    color: 'black',
+    fontWeight: 'bold'
   },
   flex1: {
     flex: 1,
@@ -366,6 +375,10 @@ const styles = StyleSheet.create({
   flex5: {
     flex: 5,
     width: '90%'
+  },
+  flex6: {
+
+    gap: 3
   },
   tinyLogo: {
     width: 35,
