@@ -50,7 +50,7 @@ export default function TakvimScreen({ route, navigation }) {
 
     // return `${year}-${month}-${day}`;
 
-    return "2024-05-02";
+    return `${year}-${month}-${day}`;
   };
 
 
