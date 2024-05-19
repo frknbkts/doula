@@ -10,6 +10,8 @@ import { arrayUnion, writeBatch } from "firebase/firestore";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Image } from 'react-native';
 import Checkbox from 'expo-checkbox';
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
 
 
 
@@ -420,6 +422,7 @@ export default function TakvimScreen({ route, navigation }) {
   const submitBloodPressure = () => {
     checkBloodPressure(bloodPressure);
     uploadCompletedTest("BPUT")
+    sendImmediateNotification()
     closeModal();
   };
 
@@ -642,6 +645,23 @@ export default function TakvimScreen({ route, navigation }) {
 
   );
 }
+
+// Function to send an immediate notification
+const sendImmediateNotification = async () => {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Doula",
+      body: "One week passed, time to make blood pressure test.",
+    },
+    trigger: {
+      repeats: true,
+      weekday: 1, 
+      // hour: 9, 
+      // minute: 0, 
+      // second: 0, 
+    },
+  });
+};
 
 const styles = StyleSheet.create({
   flex2: {
