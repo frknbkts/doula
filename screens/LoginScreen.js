@@ -53,7 +53,7 @@ function LoginScreen({ navigation }) {
 
         <TouchableOpacity style={styles.btn}
           onPress={() => handleLogin()}
-        ><Text style={styles.txt}>LOGIN</Text></TouchableOpacity>
+        ><Text style={styles.txt}>SignIn</Text></TouchableOpacity>
 
         <TouchableOpacity
           style={styles.btnSign}
@@ -109,11 +109,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingLeft: 10,
     paddingRight: 5,
-    fontSize: 30,
+    fontSize: 25,
 
   },
   txt: {
-    fontSize: 30,
+    fontSize: 20,
     color: '#ffffff'
   },
   txtSign: {
