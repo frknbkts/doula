@@ -504,9 +504,13 @@ export default function TakvimScreen({ route, navigation }) {
                 open={open}
                 value={examinationType}
                 items={[
-                  { label: 'Blood pressure & urine tests', value: 'BPUT' },
-                  { label: 'Anatomy ultrasound.', value: 'AU' },
-                  { label: 'Birth plan discussion.', value: 'BPD' }
+                  { label: 'Tansiyon ve idrar testleri', value: 'BPUT' },
+                  { label: 'Anatomi ultrasonu.', value: 'AU' },
+                  { label: 'Doğum planı tartışması.', value: 'BPD' }
+
+                  // { label: 'Blood pressure & urine tests', value: 'BPUT' },
+                  // { label: 'Anatomy ultrasound.', value: 'AU' },
+                  // { label: 'Birth plan discussion.', value: 'BPD' }
                 ]}
                 setOpen={setOpen}
                 setValue={setExaminationType}
@@ -521,17 +525,17 @@ export default function TakvimScreen({ route, navigation }) {
 
               {mode !== 'end' && (
                 <TouchableOpacity style={styles.taskBtn} onPress={uploadAllRanges}>
-                  <Text style={styles.txt2}>Upload All Ranges</Text>
+                  <Text style={styles.txt2}>Tüm Aralıkları DB'ye Yükle</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity style={styles.taskBtn} onPress={fetchAllRanges}>
-                <Text style={styles.txt2}>Fetch Ranges</Text>
+                <Text style={styles.txt2}>Aralıkları Getir</Text>
               </TouchableOpacity>
 
 
               <TouchableOpacity style={styles.taskBtn} onPress={clearCalendar}>
-                <Text style={styles.txt2}>Clear Calendar</Text>
+                <Text style={styles.txt2}>Takvimi Temizle</Text>
               </TouchableOpacity>
 
             </View>
@@ -545,11 +549,11 @@ export default function TakvimScreen({ route, navigation }) {
                 style={{ width: '100%', height: '50%' }} // Adjust the width and height as needed
               />
               <TouchableOpacity style={styles.taskBtn} onPress={showModal}>
-                <Text style={styles.txt2}>Do tasks</Text>
+                <Text style={styles.txt2}>Görevleri yap</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.taskBtn} onPress={fetchCompletedTest}>
-                <Text style={styles.txt2}>Completed tasks</Text>
+                <Text style={styles.txt2}>Tamamlanan görevler</Text>
               </TouchableOpacity>
 
 
@@ -568,11 +572,11 @@ export default function TakvimScreen({ route, navigation }) {
                     >
                       <View style={styles.row}>
 
-                        <Text style={styles.popupHeader}>Urine Test:</Text>
+                        <Text style={styles.popupHeader}>İdrar testi:</Text>
                         <Checkbox value={urineTest} onValueChange={seturineTest} color="#59CF35" />
                       </View>
 
-                      <Text style={styles.popupHeader}>Enter blood pressure</Text>
+                      <Text style={styles.popupHeader}>Tansiyonuzu girin</Text>
 
                       <TextInput
                         style={[styles.input, { fontSize: 20, color: 'white', fontWeight: 'bold' }]}
@@ -584,7 +588,7 @@ export default function TakvimScreen({ route, navigation }) {
                       />
 
                       <TouchableOpacity style={styles.inPopupBtn} onPress={submitBloodPressure}>
-                        <Text style={styles.txt2}>Submit BPUT</Text>
+                        <Text style={styles.txt2}>BPUT'u gönder</Text>
                       </TouchableOpacity>
                     </View>
 
@@ -601,7 +605,7 @@ export default function TakvimScreen({ route, navigation }) {
                       </View>
 
                       <TouchableOpacity style={styles.inPopupBtn} onPress={submitAnatomyUltrasound}>
-                        <Text style={styles.txt2}>Submit AU</Text>
+                        <Text style={styles.txt2}>AU'yu gönder</Text>
                       </TouchableOpacity>
                     </View>
 
@@ -610,7 +614,7 @@ export default function TakvimScreen({ route, navigation }) {
 
                   {/* <Text style={styles.txt}>This is a popup screen</Text> */}
                   <TouchableOpacity onPress={closeModal}>
-                    <Text style={styles.txt}>Close</Text>
+                    <Text style={styles.txt}>Kapat</Text>
                   </TouchableOpacity>
                 </View>
               </Modal>
@@ -636,7 +640,7 @@ export default function TakvimScreen({ route, navigation }) {
 
       <View style={styles.flex2}>
         <TouchableOpacity style={styles.banner} onPress={copyToClipboard}>
-          <Text style={styles.txt}>Click to Copy Period Code 📋</Text>
+          <Text style={styles.txt}>Doula Kodunu Kopyalamak İçin Tıklayın 📋</Text>
         </TouchableOpacity>
       </View>
 
@@ -651,7 +655,7 @@ const sendImmediateNotification = async () => {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "Doula",
-      body: "One week passed, time to make blood pressure test.",
+      body: "Bir hafta geçti, tansiyon testi yapma zamanı geldi.",
     },
     trigger: {
       repeats: true,

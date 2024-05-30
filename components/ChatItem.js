@@ -45,7 +45,7 @@ export default function ChatItem(props) {
           </Text>
           {user == auth.currentUser?.email ? (
             <TouchableOpacity onPress={() => DeleteMessage([props.code, props.message])}>
-              <Text style={{color: 'red'}}>Delete</Text>
+              <Text style={{color: 'red'}}>Sil</Text>
             </TouchableOpacity>
           ) : <></>}
         </View>

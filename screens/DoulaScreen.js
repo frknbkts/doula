@@ -17,7 +17,7 @@ function createCode() {
 }
 const db = getFirestore();
 
-async function CreateClub(params) {
+async function CreateDoula(params) {
   try {
     let kod = createCode()
     await setDoc(doc(db, "doula", kod), {
@@ -31,7 +31,7 @@ async function CreateClub(params) {
   }
 }
 
-async function joinClub(params) {
+async function joinDoula(params) {
   try {
     const ref = doc(db, "doula", params);
     await updateDoc(ref, {
@@ -45,8 +45,8 @@ async function joinClub(params) {
 
 
 export default function DoulaScreen({ navigation }) {
-  const [cClub, setcClub] = useState('');
-  const [jClub, setjClub] = useState('');
+  const [cDoula, setcDoula] = useState('');
+  const [jDoula, setjDoula] = useState('');
   const [createText, setCreateText] = useState('');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +109,7 @@ export default function DoulaScreen({ navigation }) {
 
   return (
     <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
-      <View style={styles.banner}><Text style={styles.txt}>Periodes</Text></View>
+      <View style={styles.banner}><Text style={styles.txt}>Doulalar</Text></View>
 
       <View style={styles.flex2}>
 
@@ -123,24 +123,24 @@ export default function DoulaScreen({ navigation }) {
             <TextInput
               id='createInput'
               style={styles.input}
-              placeholder="Period Name"
-              value={cClub}
-              onChangeText={text => setcClub(text)}
+              placeholder="Doula İsmi"
+              value={cDoula}
+              onChangeText={text => setcDoula(text)}
             />
             <TouchableOpacity
               style={styles.create}
               onPress={() => {
-                if (cClub.length > 2) {
-                  CreateClub(cClub);
+                if (cDoula.length > 2) {
+                  CreateDoula(cDoula);
                   setCreateText('Period was Created.');
-                  setcClub("");
+                  setcDoula("");
                 } else {
                   setCreateText('Period name is too short.');
                 }
                 getData();
               }}
             >
-              <Text style={styles.txt}>Create</Text>
+              <Text style={styles.txt}>Oluştur</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -149,21 +149,21 @@ export default function DoulaScreen({ navigation }) {
 
         <View style={styles.row}>
           <TextInput style={styles.input}
-            placeholder="Period Code"
-            value={jClub}
+            placeholder="Doula Code"
+            value={jDoula}
             onChangeText={text => {
-              setjClub(text)
+              setjDoula(text)
             }
             }
           />
           <TouchableOpacity style={styles.create}
             onPress={() => {
-              joinClub(jClub)
+              joinDoula(jDoula)
               setCreateText('Joined the Period.')
               getData()
             }
             }
-          ><Text style={styles.txt}>Join</Text></TouchableOpacity>
+          ><Text style={styles.txt}>Katıl</Text></TouchableOpacity>
         </View>
       </View>
 
@@ -182,7 +182,7 @@ export default function DoulaScreen({ navigation }) {
             keyExtractor={({ item }, index) => index}
             renderItem={({ item }, index) => (
               <Channel key={index} onPress={() => navigation.navigate('Mesajlar')}
-                clubname={item.name} clubcode={item.code} navigation={navigation}
+                doulaName={item.name} doulaCode={item.code} navigation={navigation}
               />
             )}
           />
@@ -191,7 +191,7 @@ export default function DoulaScreen({ navigation }) {
 
       <Text>{auth.currentUser?.email}</Text>
       <TouchableOpacity onPress={handleSingOut}>
-        <Text style={styles.txtred}>SIGN OUT</Text>
+        <Text style={styles.txtred}>Çıkış</Text>
       </TouchableOpacity>
 
     </ImageBackground>
@@ -264,8 +264,8 @@ const styles = StyleSheet.create({
     flex: 6,
     width: '100%',
   },
-  deleteClub: {
-    backgroundColor: '#9BCCBA',
+  deleteDoula: {
+    backgroundColor: '#DFDFDF',
     width: 30,
     height: 30,
     justifyContent: 'center',

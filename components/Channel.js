@@ -4,7 +4,7 @@ import { getFirestore, doc, arrayRemove, updateDoc} from "firebase/firestore";
 import { auth } from '../firebase';
 const db = getFirestore();
 
-async function DeleteClub(params) {
+async function DeleteDoula(params) {
   try {
     const ref = doc(db, "doula", params);
     await updateDoc(ref, {
@@ -18,26 +18,26 @@ async function DeleteClub(params) {
 export default function Channel(props) {
   return (
    
-    <TouchableOpacity onPress={() => props.navigation.navigate('Mesajlar', {name: props.clubname, code: props.clubcode})} style={styles.container}>
+    <TouchableOpacity onPress={() => props.navigation.navigate('Mesajlar', {name: props.doulaName, code: props.doulaCode})} style={styles.container}>
 
-        <TouchableOpacity onPress={() => DeleteClub(props.clubcode)} style={styles.deleteClub}>
+        <TouchableOpacity onPress={() => DeleteDoula(props.doulaCode)} style={styles.deleteDoula}>
           <Text style={{color: 'red'}}>❌</Text>
         </TouchableOpacity>
 
         <View style={styles.logoContent}>
           <View style={styles.logo}>
             <Text style={styles.logotxt}>
-              {props.clubname[0]}
+              {props.doulaName[0]}
             </Text>
           </View>
         </View>
 
         <View style={styles.content}>
           <Text style={styles.txt}>
-            {props.clubname}
+            {props.doulaName}
           </Text>
           <Text style={styles.codetxt}>
-            Period Code: {props.clubcode}
+            Doula Code: {props.doulaCode}
           </Text>
         </View>
 
@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 2
   },
-  deleteClub:{
-    backgroundColor: '#9BCCBA',
+  deleteDoula:{
+    backgroundColor: '#F5F5F5',
     width: 30,
     height:30,
     justifyContent: 'center',

@@ -91,7 +91,7 @@ export default function Announcements({route, navigation}) {
           <TextInput
             onChangeText={text => setSendMessage(text)}
             style={styles.btn}
-            placeholder='Message'
+            placeholder='Mesaj'
             value={sendMessage}
           />
         

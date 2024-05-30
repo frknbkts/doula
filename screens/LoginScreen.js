@@ -42,6 +42,7 @@ function LoginScreen({ navigation }) {
           placeholder="Email"
           value={email}
           onChangeText={text => setEmail(text)}
+          placeholderTextColor="#999"
         />
         <TextInput
           secureTextEntry={true}
@@ -49,21 +50,20 @@ function LoginScreen({ navigation }) {
           placeholder="Password"
           onChangeText={text => setPass(text)}
           style={styles.input}
+          placeholderTextColor="#999"
         />
 
-        <TouchableOpacity style={styles.btn}
-          onPress={() => handleLogin()}
-        ><Text style={styles.txt}>SignIn</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
+          <Text style={styles.txtBtn}>Sign In</Text>
+        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.btnSign}
-          onPress={() => navigation.navigate('Sign Up')}>
-          <Text style={styles.txtSign}>SignUp</Text>
+        <TouchableOpacity style={styles.btnSign} onPress={() => navigation.navigate('Sign Up')}>
+          <Text style={styles.txtBtn}>Sign Up</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -71,55 +71,55 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#9BCCBA'
+    backgroundColor: '#9BCCBA',
   },
   flex1: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   flex2: {
     flex: 2,
-    width: '80%'
+    width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   btn: {
     backgroundColor: '#EF3939',
-    color: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    lineHeight: 20,
     borderRadius: 10,
-    padding: 10,
-    marginTop: 10
+    padding: 15,
+    marginTop: 20,
+    width: '100%',
   },
   btnSign: {
     backgroundColor: '#A53B3B',
-    color: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    lineHeight: 20,
     borderRadius: 10,
-    padding: 10,
-    marginTop: 10
+    padding: 15,
+    marginTop: 10,
+    width: '100%',
   },
   input: {
     backgroundColor: '#ffffff',
     borderRadius: 10,
-    lineHeight: 30,
+    height: 50,
     marginTop: 10,
-    paddingLeft: 10,
-    paddingRight: 5,
-    fontSize: 25,
-
+    paddingLeft: 15,
+    fontSize: 18,
+    width: '100%',
   },
   txt: {
-    fontSize: 20,
-    color: '#ffffff'
+    fontSize: 24,
+    color: '#ffffff',
+    marginBottom: 20,
   },
-  txtSign: {
-    fontSize: 20,
-    color: '#ffffff'
-  }
+  txtBtn: {
+    fontSize: 18,
+    color: '#ffffff',
+  },
 });
 
-export default LoginScreen
+export default LoginScreen;
