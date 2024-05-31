@@ -1,42 +1,35 @@
-import Logo from '../components/Logo'
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
-
-
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../firebase.js'
+import { auth } from '../firebase.js';
+import Logo from '../components/Logo';
 
 function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('')
-  const [pass, setPass] = useState('')
-  const [login, setLogin] = useState('')
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [login, setLogin] = useState('');
 
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, pass)
       .then((userCredential) => {
-        // Signed in 
         const user = userCredential.user;
-        setLogin('Login Succesfull')
-
-        navigation.replace('Content')
-
-        // ...
+        setLogin('Login Successful');
+        navigation.replace('Content');
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        setLogin(errorCode)
+        setLogin(errorMessage);
       });
-  }
+  };
 
   return (
     <ImageBackground source={require('../images/login.jpg')} style={styles.container}>
-      <View style={styles.flex1}>
+      <View style={styles.logoContainer}>
         <Logo />
       </View>
-
-      <Text style={styles.txt}>{login}</Text>
-      <View style={styles.flex2}>
+      <Text style={styles.loginMessage}>{login}</Text>
+      <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -45,20 +38,18 @@ function LoginScreen({ navigation }) {
           placeholderTextColor="#999"
         />
         <TextInput
-          secureTextEntry={true}
-          value={pass}
-          placeholder="Password"
-          onChangeText={text => setPass(text)}
+          secureTextEntry
           style={styles.input}
+          placeholder="Password"
+          value={pass}
+          onChangeText={text => setPass(text)}
           placeholderTextColor="#999"
         />
-
-        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-          <Text style={styles.txtBtn}>Sign In</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btnSign} onPress={() => navigation.navigate('Sign Up')}>
-          <Text style={styles.txtBtn}>Sign Up</Text>
+        <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('Sign Up')}>
+          <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -71,36 +62,22 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#9BCCBA',
   },
-  flex1: {
+  logoContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  flex2: {
+  loginMessage: {
+    fontSize: 18,
+    color: '#ffdddd',
+    marginBottom: 20,
+  },
+  inputContainer: {
     flex: 2,
     width: '80%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  btn: {
-    backgroundColor: '#EF3939',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 20,
-    width: '100%',
-  },
-  btnSign: {
-    backgroundColor: '#A53B3B',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 10,
-    width: '100%',
   },
   input: {
     backgroundColor: '#ffffff',
@@ -111,14 +88,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     width: '100%',
   },
-  txt: {
-    fontSize: 24,
-    color: '#ffffff',
-    marginBottom: 20,
+  loginButton: {
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 15,
+    marginTop: 20,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
-  txtBtn: {
+  signUpButton: {
+    backgroundColor: '#008CBA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 15,
+    marginTop: 10,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  buttonText: {
     fontSize: 18,
     color: '#ffffff',
+    fontWeight: 'bold',
   },
 });
 

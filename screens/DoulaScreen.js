@@ -2,25 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
 import Channel from '../components/Channel';
 import { auth } from '../firebase';
-import { getFirestore } from "firebase/firestore"
-import { collection, query, setDoc, getDocs, doc, arrayUnion, updateDoc } from "firebase/firestore";
-import { getDoc } from "firebase/firestore";
-
+import { getFirestore, collection, query, setDoc, getDocs, doc, arrayUnion, updateDoc, getDoc } from "firebase/firestore";
 
 function createCode() {
   let code = '';
   for (let i = 0; i < 9; i++) {
-    let x = Math.round(Math.random() * 9)
-    code += x
+    let x = Math.round(Math.random() * 9);
+    code += x;
   }
-  return code
+  return code;
 }
+
 const db = getFirestore();
 
 async function CreateDoula(params) {
   try {
-    let kod = createCode()
+    let kod = createCode();
     await setDoc(doc(db, "doula", kod), {
+      doctorId: [auth.currentUser?.uid],
       name: params,
       code: kod,
       user: [auth.currentUser?.email],
@@ -32,6 +31,7 @@ async function CreateDoula(params) {
 }
 
 async function joinDoula(params) {
+  console.log(params);
   try {
     const ref = doc(db, "doula", params);
     await updateDoc(ref, {
@@ -40,9 +40,22 @@ async function joinDoula(params) {
   } catch (e) {
     console.error("Error adding document: ", e);
   }
+
+  // try {
+  //   const uid = auth.currentUser.uid; // but it should be the doctor id
+  //   console.log("user Id: ",uid);
+
+  //   const ref = doc(db, "users", uid);
+
+  //   console.log("AAAAAAAAAAAAAAAAAAA");
+    
+  //   await updateDoc(ref, {
+  //     patients: arrayUnion(auth.currentUser?.email)
+  //   });
+  // } catch (e) {
+  //   console.error("Error adding patient: ", e);
+  // }
 }
-
-
 
 export default function DoulaScreen({ navigation }) {
   const [cDoula, setcDoula] = useState('');
@@ -52,7 +65,6 @@ export default function DoulaScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState('pregnant');
 
-
   useEffect(() => {
     const fetchData = async () => {
       await getUserData(); // Fetch user data and update userType
@@ -60,21 +72,15 @@ export default function DoulaScreen({ navigation }) {
     };
 
     fetchData(); // Call fetchData when component mounts
-    console.log(data)
   }, []);
 
-  async function getUserData() {/// AAAAA
+  async function getUserData() {
     try {
-      console.log(auth.currentUser.uid);
       const docRef = doc(db, "users", auth.currentUser.uid);
       const docSnapshot = await getDoc(docRef);
       if (docSnapshot.exists()) {
-        // Access the role field from the document data
         const role = docSnapshot.data().role;
-
         setUserType(role);
-        console.log("User role: ", role);
-
       } else {
         console.log("No such document!");
       }
@@ -84,199 +90,202 @@ export default function DoulaScreen({ navigation }) {
   }
 
   async function getData() {
-    // , where("name", "==", "kitap")
-    let s = []
+    let s = [];
     const q = query(collection(db, "doula"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       doc.data().user.forEach((i) => {
-        console.log(i)
-        if (i == auth.currentUser?.email)
-          s = [...s, doc.data()];
-      })
+        if (i === auth.currentUser?.email) s = [...s, doc.data()];
+      });
     });
-    setData(s)
-    setLoading(false)
+    setData(s);
+    setLoading(false);
   }
 
-  const handleSingOut = () => {
+  const handleSignOut = () => {
     auth.signOut()
       .then(() => {
-        navigation.replace("Login")
+        navigation.replace("Login");
       })
-      .catch(error => alert(error.message))
+      .catch(error => alert(error.message));
   }
 
   return (
     <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
-      <View style={styles.banner}><Text style={styles.txt}>Doulalar</Text></View>
+      <View style={styles.banner}><Text style={styles.bannerText}>Doulalar</Text></View>
 
       <View style={styles.flex2}>
-
-        <Text>{createText}</Text>
-
-        <View style={styles.createContainer}></View>
-
+        <Text style={styles.createText}>{createText}</Text>
 
         {userType !== "pregnant" && (
           <View style={styles.row}>
             <TextInput
-              id='createInput'
               style={styles.input}
-              placeholder="Doula İsmi"
+              placeholder="Doula Name"
               value={cDoula}
               onChangeText={text => setcDoula(text)}
+              placeholderTextColor="#999"
             />
             <TouchableOpacity
-              style={styles.create}
+              style={styles.createButton}
               onPress={() => {
                 if (cDoula.length > 2) {
                   CreateDoula(cDoula);
-                  setCreateText('Period was Created.');
+                  setCreateText('Doula was Created.');
                   setcDoula("");
                 } else {
-                  setCreateText('Period name is too short.');
+                  setCreateText('Doula name is too short.');
                 }
                 getData();
               }}
             >
-              <Text style={styles.txt}>Oluştur</Text>
+              <Text style={styles.buttonText}>Create</Text>
             </TouchableOpacity>
           </View>
         )}
 
-
-
         <View style={styles.row}>
-          <TextInput style={styles.input}
+          <TextInput
+            style={styles.input}
             placeholder="Doula Code"
             value={jDoula}
-            onChangeText={text => {
-              setjDoula(text)
-            }
-            }
+            onChangeText={text => setjDoula(text)}
+            placeholderTextColor="#999"
           />
-          <TouchableOpacity style={styles.create}
+          <TouchableOpacity
+            style={styles.joinButton}
             onPress={() => {
-              joinDoula(jDoula)
-              setCreateText('Joined the Period.')
-              getData()
-            }
-            }
-          ><Text style={styles.txt}>Katıl</Text></TouchableOpacity>
+              joinDoula(jDoula);
+              setCreateText('Joined the Doula.');
+              getData();
+            }}
+          >
+            <Text style={styles.buttonText}>Join</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.flex6}>
         {loading ? (
-          <ActivityIndicator
-            visible={loading}
-            textContent={'Loading...'}
-            size="large"
-            color="#ff0000"
-          />
+          <ActivityIndicator size="large" color="#ff0000" />
         ) : (
           <FlatList
-            style={styles.fltlist}
+            style={styles.flatList}
             data={data}
-            keyExtractor={({ item }, index) => index}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }, index) => (
-              <Channel key={index} onPress={() => navigation.navigate('Mesajlar')}
-                doulaName={item.name} doulaCode={item.code} navigation={navigation}
-              />
+              <Channel key={index} onPress={() => navigation.navigate('Messages')} doulaName={item.name} doulaCode={item.code} navigation={navigation} />
             )}
           />
         )}
       </View>
 
-      <Text>{auth.currentUser?.email}</Text>
-      <TouchableOpacity onPress={handleSingOut}>
-        <Text style={styles.txtred}>Çıkış</Text>
+      <Text style={styles.userEmail}>{auth.currentUser?.email}</Text>
+      <TouchableOpacity onPress={handleSignOut}>
+        <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
-
     </ImageBackground>
-
   );
 }
 
 const styles = StyleSheet.create({
   homescreen: {
     flex: 1,
-    backgroundColor: '#9BCCBA',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   banner: {
     backgroundColor: '#EF3939',
     width: '100%',
-    color: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    lineHeight: 30,
-    fontSize: 30,
     paddingTop: 30,
-    paddingBottom: 10
+    paddingBottom: 10,
   },
-  createContainer: {
-    marginTop: 10, // Adjust the margin as needed
-    marginBottom: 10, // Adjust the margin as needed
-    width: '90%',
-  },
-  create: {
-    flex: 1,
-    backgroundColor: '#EF3939',
-    color: '#fff',
-    borderRadius: 10,
-    alignItems: 'center',
-    fontSize: 30,
-    // background color must be set
-  },
-  txt: {
+  bannerText: {
     fontSize: 30,
     color: '#ffffff',
-
-  },
-  row: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    width: '90%',
-    gap: 5
-  },
-  input: {
-    flex: 2,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    lineHeight: 20,
-    fontSize: 20,
-    paddingLeft: 10,
-    paddingRight: 10
-  },
-  fltlist: {
-    width: '90%',
-    margin: 20,
-    borderRadius: 10,
+    fontWeight: 'bold',
   },
   flex2: {
     flex: 2,
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  createText: {
+    fontSize: 18,
+    color: '#ffdddd',
+    marginVertical: 10,
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    width: '100%',
+    gap: 5,
+  },
+  input: {
+    flex: 2,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    height: 50,
+    fontSize: 18,
+    paddingLeft: 15,
+    paddingRight: 15,
+    marginHorizontal: 5,
+  },
+  createButton: {
+    flex: 1,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  joinButton: {
+    flex: 1,
+    backgroundColor: '#008CBA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: '#ffffff',
+    fontWeight: 'bold',
   },
   flex6: {
     flex: 6,
     width: '100%',
   },
-  deleteDoula: {
-    backgroundColor: '#DFDFDF',
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 50,
-    position: 'absolute',
-    right: 0,
-    top: 0
+  flatList: {
+    paddingTop:60,
+    width: '100%',
+    paddingHorizontal: 20,
   },
-  txtred: {
-    fontSize: 30,
+  userEmail: {
+    fontSize: 16,
+    color: '#ffffff',
+    marginVertical: 20,
+  },
+  signOutText: {
+    fontSize: 18,
     color: '#ff0000',
-  }
+    marginBottom: 30,
+  },
 });
+
+
