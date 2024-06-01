@@ -1,7 +1,9 @@
-import React, { Children } from 'react';
+import React, { Children, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ViewBase } from 'react-native';
 import { auth } from '../firebase';
-import { getFirestore, doc, arrayRemove, updateDoc} from "firebase/firestore"; 
+import { getFirestore, collection, query, where, setDoc, getDocs, doc, arrayUnion, updateDoc, getDoc } from "firebase/firestore";
+
+
 
 const db = getFirestore();
 
@@ -27,13 +29,33 @@ export default function ChatItem(props) {
   let message = "";
   for (let i = 0; i < chat.length; i++) {
     message+= chat[i]+ " "
-    
   }
+
+  const [username, setUsername] = useState(null);
+
+  useEffect(() => {
+    async function fetchUsername() {
+      try {
+        const q = query(collection(db, "users"), where("user", "==", user));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          setUsername(userData.username);
+        });
+      } catch (error) {
+        console.error("Error fetching username: ", error);
+      }
+    }
+
+    fetchUsername();
+  }, [user]);
+
+
   return (
     <View style={[user == auth.currentUser?.email ?  styles.container2: styles.container] }>
         <View style={styles.row}>
             <Text style={styles.name}>
-                    {user}
+                    {username +  " " + user}
             </Text>
             <Text style={styles.name}>
                     {time}

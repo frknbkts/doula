@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, ActivityIndicator, ImageBackground, Modal } from 'react-native';
 import Channel from '../components/Channel';
 import { auth } from '../firebase';
 import { getFirestore, collection, query, setDoc, getDocs, doc, arrayUnion, updateDoc, getDoc } from "firebase/firestore";
@@ -40,21 +40,6 @@ async function joinDoula(params) {
   } catch (e) {
     console.error("Error adding document: ", e);
   }
-
-  // try {
-  //   const uid = auth.currentUser.uid; // but it should be the doctor id
-  //   console.log("user Id: ",uid);
-
-  //   const ref = doc(db, "users", uid);
-
-  //   console.log("AAAAAAAAAAAAAAAAAAA");
-    
-  //   await updateDoc(ref, {
-  //     patients: arrayUnion(auth.currentUser?.email)
-  //   });
-  // } catch (e) {
-  //   console.error("Error adding patient: ", e);
-  // }
 }
 
 export default function DoulaScreen({ navigation }) {
@@ -64,6 +49,8 @@ export default function DoulaScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState('pregnant');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,6 +89,15 @@ export default function DoulaScreen({ navigation }) {
     setLoading(false);
   }
 
+  async function updateUsername() {
+    try {
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      await updateDoc(userRef, { username: username });
+    } catch (error) {
+      console.error("Error updating username: ", error);
+    }
+  }
+
   const handleSignOut = () => {
     auth.signOut()
       .then(() => {
@@ -109,6 +105,20 @@ export default function DoulaScreen({ navigation }) {
       })
       .catch(error => alert(error.message));
   }
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleSubmitUsername = () => {
+    console.log('Username:', username);
+    updateUsername(); // Update the username in Firebase
+    handleCloseModal();
+  };
 
   return (
     <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
@@ -163,6 +173,13 @@ export default function DoulaScreen({ navigation }) {
             <Text style={styles.buttonText}>Join</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={styles.openModalButton}
+          onPress={handleOpenModal}
+        >
+          <Text style={styles.buttonText}>Enter Username</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.flex6}>
@@ -184,6 +201,38 @@ export default function DoulaScreen({ navigation }) {
       <TouchableOpacity onPress={handleSignOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Enter Username</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleSubmitUsername}
+            >
+              <Text style={styles.buttonText}>Submit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleCloseModal}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
@@ -262,6 +311,20 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
+  openModalButton: {
+    backgroundColor: '#FF6347',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
   buttonText: {
     fontSize: 18,
     color: '#ffffff',
@@ -272,7 +335,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   flatList: {
-    paddingTop:60,
+    paddingTop: 130,
     width: '100%',
     paddingHorizontal: 20,
   },
@@ -286,6 +349,46 @@ const styles = StyleSheet.create({
     color: '#ff0000',
     marginBottom: 30,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    fontSize: 20,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalInput: {
+    width: '100%',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 10,
+    height: 50,
+    fontSize: 18,
+    paddingLeft: 15,
+    paddingRight: 15,
+    marginBottom: 15,
+  },
+  modalButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 5,
+    width: '100%',
+    alignItems: 'center',
+  },
 });
-
 

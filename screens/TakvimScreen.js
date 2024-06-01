@@ -575,7 +575,7 @@ export default function TakvimScreen({ route, navigation }) {
           {userType !== 'doctor' && (
             <View style={styles.flex6}>
               <Image
-                source={require('../assets/Colors Instruction.jpeg')} // Local image
+                source={require('../assets/Colors instructions2.jpg')} // Local image
                 // source={{ uri: 'https://example.com/image.jpg' }} // Remote image
                 style={{ width: '100%', height: '50%' }} // Adjust the width and height as needed
               />
