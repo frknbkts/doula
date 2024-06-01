@@ -250,7 +250,7 @@ export default function TakvimScreen({ route, navigation }) {
       alert('Failed to schedule notification');
     }
   };
-  
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -507,7 +507,7 @@ export default function TakvimScreen({ route, navigation }) {
 
     <ImageBackground source={require('../images/doula.jpg')} style={styles.container}>
       <View style={[styles.flex1, { justifyContent: 'flex-end' }]}>
-        <TouchableOpacity onPress={() => navigation.navigate('Announcements', { name: name, code: code })} style={styles.banner}>
+        <TouchableOpacity style={styles.banner} onPress={copyToClipboard}>
           <Text style={styles.txt}>📢 Process 📢</Text>
 
         </TouchableOpacity>
@@ -561,7 +561,7 @@ export default function TakvimScreen({ route, navigation }) {
               )}
 
               <TouchableOpacity style={styles.taskBtn} onPress={fetchAllRanges}>
-                <Text style={styles.txt2}>Aralıkları Getir</Text>
+                <Text style={styles.txt2}>Aralıkları DB'den Getir</Text>
               </TouchableOpacity>
 
 
@@ -669,11 +669,7 @@ export default function TakvimScreen({ route, navigation }) {
 
       </View>
 
-      <View style={styles.flex2}>
-        <TouchableOpacity style={styles.banner} onPress={copyToClipboard}>
-          <Text style={styles.txt}>Doula Kodunu Kopyalamak İçin Tıklayın 📋</Text>
-        </TouchableOpacity>
-      </View>
+
 
       <BottomBar name={name} code={code} styles={styles.input} navigation={navigation} />
     </ImageBackground>
@@ -685,40 +681,36 @@ export default function TakvimScreen({ route, navigation }) {
 const sendImmediateNotification = async () => {
 
   try {
-    // Request permissions for notifications
-    const { status } = await Notifications.getPermissionsAsync();
-    let finalStatus = status;
+      // Request permissions for notifications
+      const { status } = await Notifications.getPermissionsAsync();
+      let finalStatus = status;
 
-    if (status !== 'granted') {
-      const { status: newStatus } = await Notifications.requestPermissionsAsync();
-      finalStatus = newStatus;
+      if (status !== 'granted') {
+        const { status: newStatus } = await Notifications.requestPermissionsAsync();
+        finalStatus = newStatus;
+      }
+
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+
+      // Schedule the notification
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Doula",
+          body: "Bir hafta geçti, tansiyon testi yapma zamanı geldi.",
+        },
+        trigger: {
+          seconds: 5, // Schedule notification to trigger in 5 seconds for testing
+        },
+      });
+
+      alert('Notification scheduled successfully');
+    } catch (error) {
+      console.error("Error scheduling notification: ", error);
+      alert('Failed to schedule notification');
     }
-
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-
-    // Schedule the notification
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Doula",
-        body: "Bir hafta geçti, tansiyon testi yapma zamanı geldi.",
-      },
-      trigger: {
-        repeats: true,
-        weekday: 1, 
-        // hour: 9, 
-        // minute: 0, 
-        // second: 0, 
-      },
-    });
-
-    alert('Notification scheduled successfully');
-  } catch (error) {
-    console.error("Error scheduling notification: ", error);
-    alert('Failed to schedule notification');
-  }
 };
 
 
