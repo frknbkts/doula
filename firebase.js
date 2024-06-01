@@ -6,12 +6,12 @@ import { getAuth} from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBX9-jlSA6MB5IW-Z9sRXftTKTJa_m-Boo",
-  authDomain: "doula-439c6.firebaseapp.com",
-  projectId: "doula-439c6",
-  storageBucket: "doula-439c6.appspot.com",
-  messagingSenderId: "559050229369",
-  appId: "1:559050229369:web:6f3b00bf000d5d4c1576a8"
+    apiKey: "AIzaSyCz5YNwFKg3mIQas3GXKllpf0Bv7JMvp6o",
+    authDomain: "bitirmebkts.firebaseapp.com",
+    projectId: "bitirmebkts",
+    storageBucket: "bitirmebkts.appspot.com",
+    messagingSenderId: "1068614634765",
+    appId: "1:1068614634765:web:4f2dc467a863dec441f444"
 };
 
 
