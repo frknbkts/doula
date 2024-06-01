@@ -75,6 +75,12 @@ export default function TakvimScreen({ route, navigation }) {
     Birth plan discussion. #5063CE  BPD
 
 
+    • Tansiyon ve idrar testi. #59CF35  BPUT
+    • Ultrason Taraması. #50cebb  AU
+    • Doktor Görüşmesi. #5063CE  BPD
+    • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
+
+
   */
 
 
@@ -91,6 +97,9 @@ export default function TakvimScreen({ route, navigation }) {
 
     else if (examinationType === 'BPD')
       color = '#5063CE'
+
+    else if (examinationType === 'PKT')
+      color = '#ce5050'
 
 
     console.log("Examination Type: " + examinationType);
@@ -345,6 +354,26 @@ export default function TakvimScreen({ route, navigation }) {
     }
   };
 
+
+  /* COlORS
+
+    Blood pressure & urine tests. #59CF35  BPUT
+
+    Routine check-up
+
+    Anatomy ultrasound. #50cebb  AU
+
+    Birth plan discussion. #5063CE  BPD
+
+
+    • Tansiyon ve idrar testi. #59CF35  BPUT
+    • Ultrason Taraması. #50cebb  AU
+    • Doktor Görüşmesi. #5063CE  BPD
+    • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
+
+
+  */
+
   const uploadCompletedTest = async (testType) => {
     console.log("Uploading tests");
     todayDate = getTodayDate()
@@ -388,6 +417,23 @@ export default function TakvimScreen({ route, navigation }) {
         });
       }
 
+      else if (testType == "PKT") {
+        console.log(AUtest);
+
+        const data = {
+          [todayDate]: {
+            bloodTest: AUtest, // Assuming bloodPressure is the value you want to upload
+
+          }
+        };
+
+        // Upload the data to Firestore
+        await updateDoc(docRef, {
+          completedTests: arrayUnion(data) // Assuming you want to store multiple tests in an array
+        });
+      }
+
+
 
 
       console.log("Completed tests uploaded successfully.");
@@ -395,6 +441,25 @@ export default function TakvimScreen({ route, navigation }) {
       console.error("Error uploading completed tests: ", error);
     }
   };
+
+  /* COlORS
+
+   Blood pressure & urine tests. #59CF35  BPUT
+
+   Routine check-up
+
+   Anatomy ultrasound. #50cebb  AU
+
+   Birth plan discussion. #5063CE  BPD
+
+
+   • Tansiyon ve idrar testi. #59CF35  BPUT
+   • Ultrason Taraması. #50cebb  AU
+   • Doktor Görüşmesi. #5063CE  BPD
+   • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
+
+
+ */
 
   const fetchCompletedTest = async () => {
     try {
@@ -416,13 +481,16 @@ export default function TakvimScreen({ route, navigation }) {
             let testDetails = `Test ${index + 1}:\nDate: ${date}\n`;
 
             if ('bloodPressure' in test) {
-              testDetails += `Blood Pressure: ${test.bloodPressure}\n`;
+              testDetails += `Tansiyon: ${test.bloodPressure}\n`;
             }
             if ('urineTest' in test) {
-              testDetails += `Urine Test: ${test.urineTest ? 'Yes' : 'No'}\n`;
+              testDetails += `İdrar testi: ${test.urineTest ? 'Yes' : 'No'}\n`;
             }
             if ('anatomyUltrasonicTest' in test) {
-              testDetails += `Anatomy Ultrasonic Test: ${test.anatomyUltrasonicTest ? 'Yes' : 'No'}\n`;
+              testDetails += `Ultrason Taraması: ${test.anatomyUltrasonicTest ? 'Yes' : 'No'}\n`;
+            }
+            if ('bloodTest' in test) {
+              testDetails += `Prenetal Kontrol ve Kan Testi: ${test.bloodTest ? 'Yes' : 'No'}\n`;
             }
 
             return testDetails.trim(); // Remove any trailing newline character
@@ -463,6 +531,12 @@ export default function TakvimScreen({ route, navigation }) {
   };
 
 
+  const submitKanTesti = () => {
+    uploadCompletedTest("PKT")
+    closeModal();
+  };
+
+
   const [showBPUT, setshowBPUT] = useState(false)
   const [showAU, setshowAU] = useState(false)
   // const [showBPD, setshowBPD] = useState(false)
@@ -471,14 +545,29 @@ export default function TakvimScreen({ route, navigation }) {
   const [AUtest, setAUtest] = useState(false)
   // const [BPDtest, setBPDtest] = useState(false)
 
+  const [showPKT, setshowPKT] = useState(false)
+  const [PKTtest, setPKTtest] = useState(false)
 
-  //       Blood pressure & urine tests. #59CF35  BPUT
 
-  //       Routine check - up
+  /* COlORS
 
-  //       Anatomy ultrasound. #50cebb  AU
+   Blood pressure & urine tests. #59CF35  BPUT
 
-  //       Birth plan discussion. #5063CE  BPD
+   Routine check-up
+
+   Anatomy ultrasound. #50cebb  AU
+
+   Birth plan discussion. #5063CE  BPD
+
+
+   • Tansiyon ve idrar testi. #59CF35  BPUT
+   • Ultrason Taraması. #50cebb  AU
+   • Doktor Görüşmesi. #5063CE  BPD
+   • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
+
+
+ */
+
 
   const todayTest = (today) => {
 
@@ -497,7 +586,10 @@ export default function TakvimScreen({ route, navigation }) {
       }
       else if (markedDatesV[today]?.color === '#5063CE') {
         console.log("Birth plan discussion (BPD) Day");
-
+      }
+      else if (markedDatesV[today]?.color === '#ce5050') {
+        console.log("Prenetal Kontrol ve Kan Testi (PKT) Day");
+        setshowPKT(true)
       }
     }
   }
@@ -536,8 +628,9 @@ export default function TakvimScreen({ route, navigation }) {
                 value={examinationType}
                 items={[
                   { label: 'Tansiyon ve idrar testleri', value: 'BPUT' },
-                  { label: 'Anatomi ultrasonu.', value: 'AU' },
-                  { label: 'Doğum planı tartışması.', value: 'BPD' }
+                  { label: 'Ultrason Taraması.', value: 'AU' },
+                  { label: 'Doktor Görüşmesi.', value: 'BPD' },
+                  { label: 'Prenetal Kontrol ve Kan Testi..', value: 'PKT' }
 
                   // { label: 'Blood pressure & urine tests', value: 'BPUT' },
                   // { label: 'Anatomy ultrasound.', value: 'AU' },
@@ -598,6 +691,8 @@ export default function TakvimScreen({ route, navigation }) {
 
                 <View style={styles.modalContainer}>
 
+
+
                   {showBPUT && (
                     <View style={{ alignItems: 'center' }}
                     >
@@ -643,6 +738,47 @@ export default function TakvimScreen({ route, navigation }) {
 
                   )}
 
+                  {showPKT && (
+                    <View style={{ alignItems: 'center' }}
+                    >
+                      <View style={styles.row}>
+
+                        <Text style={styles.popupHeader}>Prenetal Kontrol ve Kan Testi:</Text>
+                        <Checkbox value={PKTtest} onValueChange={setPKTtest} color="#50cebb" />
+                      </View>
+
+                      <TouchableOpacity style={styles.inPopupBtn} onPress={submitKanTesti}>
+                        <Text style={styles.txt2}>PKT'yi gönder</Text>
+                      </TouchableOpacity>
+                    </View>
+
+
+                  )}
+
+                  {/* 
+                  const [showPKT, setshowPKT] = useState(false)
+                  const [PKTtest, setPKTtest] = useState(false)
+
+
+                  /* COlORS
+                
+                   Blood pressure & urine tests. #59CF35  BPUT
+                
+                   Routine check-up
+                
+                   Anatomy ultrasound. #50cebb  AU
+                
+                   Birth plan discussion. #5063CE  BPD
+                
+                
+                   • Tansiyon ve idrar testi. #59CF35  BPUT
+                   • Ultrason Taraması. #50cebb  AU
+                   • Doktor Görüşmesi. #5063CE  BPD
+                   • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
+                
+                
+                 */ }
+
                   {/* <Text style={styles.txt}>This is a popup screen</Text> */}
                   <TouchableOpacity onPress={closeModal}>
                     <Text style={styles.txt}>Kapat</Text>
@@ -681,36 +817,36 @@ export default function TakvimScreen({ route, navigation }) {
 const sendImmediateNotification = async () => {
 
   try {
-      // Request permissions for notifications
-      const { status } = await Notifications.getPermissionsAsync();
-      let finalStatus = status;
+    // Request permissions for notifications
+    const { status } = await Notifications.getPermissionsAsync();
+    let finalStatus = status;
 
-      if (status !== 'granted') {
-        const { status: newStatus } = await Notifications.requestPermissionsAsync();
-        finalStatus = newStatus;
-      }
-
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
-      }
-
-      // Schedule the notification
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Doula",
-          body: "Bir hafta geçti, tansiyon testi yapma zamanı geldi.",
-        },
-        trigger: {
-          seconds: 5, // Schedule notification to trigger in 5 seconds for testing
-        },
-      });
-
-      alert('Notification scheduled successfully');
-    } catch (error) {
-      console.error("Error scheduling notification: ", error);
-      alert('Failed to schedule notification');
+    if (status !== 'granted') {
+      const { status: newStatus } = await Notifications.requestPermissionsAsync();
+      finalStatus = newStatus;
     }
+
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+
+    // Schedule the notification
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Doula",
+        body: "Bir hafta geçti, tansiyon testi yapma zamanı geldi.",
+      },
+      trigger: {
+        seconds: 5, // Schedule notification to trigger in 5 seconds for testing
+      },
+    });
+
+    alert('Notification scheduled successfully');
+  } catch (error) {
+    console.error("Error scheduling notification: ", error);
+    alert('Failed to schedule notification');
+  }
 };
 
 
