@@ -261,6 +261,74 @@ export default function TakvimScreen({ route, navigation }) {
   };
 
 
+  //   • Tansiyon ve idrar testi. #59CF35  BPUT
+  //   • Ultrason Taraması. #50cebb  AU
+  //   • Doktor Görüşmesi. #5063CE  BPD
+  //   • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
+
+  const notificationColors = {
+    '#59CF35': 1, 
+    '#50cebb': 2, 
+    '#5063CE': 3, 
+    '#ce5050': 4,   
+  };
+
+  async function scheduleNotifications() {
+    // Request permissions for notifications
+    const { status } = await Notifications.getPermissionsAsync();
+    let finalStatus = status;
+
+    if (status !== 'granted') {
+      const { status: newStatus } = await Notifications.requestPermissionsAsync();
+      finalStatus = newStatus;
+    }
+
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+
+    // Iterate through markedDatesV
+    for (const dateString in markedDatesV) {
+      const tempDate = "T13:08:33.370Z"
+      const date = new Date(dateString+tempDate);
+
+      console.log("S notification date");
+      console.log(date);
+
+      // Check if it's a starting day (first test for a color group)
+      if (markedDatesV[dateString].startingDay) {
+        const notificationData = { id: notificationColors[markedDatesV[dateString].color], color: markedDatesV[dateString].color };
+
+        const trigger = {
+          date, // Schedule notification on the starting day date
+        };
+
+        try {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Doula",
+              body: "It's time for your first test!", // Customize message
+            },
+            trigger,
+            data: notificationData,
+          });
+
+          // Log details about the scheduled notification
+          console.log(`Notification scheduled for:`);
+          console.log(`  - Date: ${date.toISOString()}`);
+          console.log(`  - Message: It's time for your first test!`); // Adjust message
+          console.log(`  - ID: ${notificationData.id}`);
+          console.log(`  - Color: ${notificationData.color}`);
+        } catch (error) {
+          console.error("Error scheduling notification:", error);
+        }
+      }
+    }
+  }
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       todayDate = getTodayDate()
@@ -282,6 +350,15 @@ export default function TakvimScreen({ route, navigation }) {
         }));
 
         todayTest(todayDate)
+
+        console.log("555555555555555: ");
+        console.log(markedDatesV);
+
+        if (userType !== 'doctor') {
+          scheduleNotifications()
+        }
+
+
       });
     };
 
@@ -760,8 +837,6 @@ export default function TakvimScreen({ route, navigation }) {
                   )}
 
                   {/* 
-                  const [showPKT, setshowPKT] = useState(false)
-                  const [PKTtest, setPKTtest] = useState(false)
 
 
                   /* COlORS
@@ -944,7 +1019,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     justifyContent: 'center'
   },
-  
+
   flex1row: {
     flex: 1,
     flexDirection: 'row',
