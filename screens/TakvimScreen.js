@@ -42,12 +42,16 @@ export default function TakvimScreen({ route, navigation }) {
 
 
   const getTodayDate = () => {// ##### Change the day here
+
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
     const day = String(today.getDate()).padStart(2, '0');
 
     // return `${year}-${month}-${day}`;
+
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    console.log(`${year}-${month}-${day}`);
 
     return `${year}-${month}-${day}`;
   };
@@ -231,17 +235,17 @@ export default function TakvimScreen({ route, navigation }) {
       // Request permissions for notifications
       const { status } = await Notifications.getPermissionsAsync();
       let finalStatus = status;
-
+  
       if (status !== 'granted') {
         const { status: newStatus } = await Notifications.requestPermissionsAsync();
         finalStatus = newStatus;
       }
-
+  
       if (finalStatus !== 'granted') {
         alert('Failed to get push token for push notification!');
         return;
       }
-
+  
       // Schedule the notification
       await Notifications.scheduleNotificationAsync({
         content: {
@@ -249,10 +253,11 @@ export default function TakvimScreen({ route, navigation }) {
           body: "Bir hafta geçti, tansiyon testi yapma zamanı geldi.",
         },
         trigger: {
-          seconds: 5, // Schedule notification to trigger in 5 seconds for testing
+          seconds: 5, // Schedule notification to trigger every 5 seconds
+          repeats: true, // Repeat the notification
         },
       });
-
+  
       alert('Notification scheduled successfully');
     } catch (error) {
       console.error("Error scheduling notification: ", error);
@@ -267,10 +272,10 @@ export default function TakvimScreen({ route, navigation }) {
   //   • Prenetal Kontrol ve Kan Testi. #ce5050 PKT
 
   const notificationColors = {
-    '#59CF35': 1, 
-    '#50cebb': 2, 
-    '#5063CE': 3, 
-    '#ce5050': 4,   
+    '#59CF35': 1,
+    '#50cebb': 2,
+    '#5063CE': 3,
+    '#ce5050': 4,
   };
 
   async function scheduleNotifications() {
@@ -291,14 +296,15 @@ export default function TakvimScreen({ route, navigation }) {
     // Iterate through markedDatesV
     for (const dateString in markedDatesV) {
       const tempDate = "T13:08:33.370Z"
-      const date = new Date(dateString+tempDate);
+      const date = new Date(dateString + tempDate); // "2024-06-03T02:07:05.370Z"
+      
 
-      console.log("S notification date");
-      console.log(date);
+      // console.log("S notification date");
+      // console.log(date);
 
       // Check if it's a starting day (first test for a color group)
       if (markedDatesV[dateString].startingDay) {
-        const notificationData = { id: notificationColors[markedDatesV[dateString].color], color: markedDatesV[dateString].color };
+        const notificationData = { color: markedDatesV[dateString].color };
 
         const trigger = {
           date, // Schedule notification on the starting day date
@@ -308,7 +314,7 @@ export default function TakvimScreen({ route, navigation }) {
           await Notifications.scheduleNotificationAsync({
             content: {
               title: "Doula",
-              body: "It's time for your first test!", // Customize message
+              body: "It's time for your test!", // Customize message
             },
             trigger,
             data: notificationData,
@@ -318,7 +324,7 @@ export default function TakvimScreen({ route, navigation }) {
           console.log(`Notification scheduled for:`);
           console.log(`  - Date: ${date.toISOString()}`);
           console.log(`  - Message: It's time for your first test!`); // Adjust message
-          console.log(`  - ID: ${notificationData.id}`);
+
           console.log(`  - Color: ${notificationData.color}`);
         } catch (error) {
           console.error("Error scheduling notification:", error);
@@ -328,6 +334,13 @@ export default function TakvimScreen({ route, navigation }) {
   }
 
 
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -357,6 +370,13 @@ export default function TakvimScreen({ route, navigation }) {
         if (userType !== 'doctor') {
           scheduleNotifications()
         }
+
+
+        const subscription = Notifications.addNotificationReceivedListener(notification => {
+          console.log(notification);
+        });
+
+        return () => subscription.remove();
 
 
       });
@@ -894,7 +914,6 @@ export default function TakvimScreen({ route, navigation }) {
 
 // Function to send an immediate notification
 const sendImmediateNotification = async () => {
-
   try {
     // Request permissions for notifications
     const { status } = await Notifications.getPermissionsAsync();
@@ -921,12 +940,15 @@ const sendImmediateNotification = async () => {
       },
     });
 
-    alert('Notification scheduled successfully');
+    // alert('Notification scheduled successfully');
   } catch (error) {
     console.error("Error scheduling notification: ", error);
     alert('Failed to schedule notification');
   }
 };
+
+
+
 
 
 const styles = StyleSheet.create({

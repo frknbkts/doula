@@ -109,6 +109,7 @@ export default function DoulaScreen({ navigation }) {
   }
 
   const handleOpenModal = () => {
+    console.log("AAAAAAAAAAAA");
     setModalVisible(true);
   };
 
@@ -122,9 +123,9 @@ export default function DoulaScreen({ navigation }) {
     handleCloseModal();
   };
 
-  
 
-  
+
+
 
   return (
     <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
@@ -180,7 +181,9 @@ export default function DoulaScreen({ navigation }) {
           >
             <Text style={styles.buttonText}>Join</Text>
           </TouchableOpacity>
+          
         </View>
+
 
         <TouchableOpacity
           style={styles.openModalButton}
@@ -188,7 +191,11 @@ export default function DoulaScreen({ navigation }) {
         >
           <Text style={styles.buttonText}>Enter Username</Text>
         </TouchableOpacity>
+  
+
       </View>
+
+      
 
       <View style={styles.flex6}>
         {loading ? (
@@ -265,7 +272,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   flex2: {
-    flex: 2,
+
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
@@ -319,12 +326,18 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
+  enterUserName: {
+    paddingTop:40
+
+  },
+
   openModalButton: {
     backgroundColor: '#FF6347',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
     padding: 15,
+
     marginVertical: 10,
     width: '80%',
     shadowColor: '#000',
