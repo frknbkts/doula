@@ -4,6 +4,8 @@ import Channel from '../components/Channel';
 import { auth } from '../firebase';
 import { getFirestore, collection, query, setDoc, getDocs, doc, arrayUnion, updateDoc, getDoc } from "firebase/firestore";
 
+
+
 function createCode() {
   let code = '';
   for (let i = 0; i < 9; i++) {
@@ -120,6 +122,10 @@ export default function DoulaScreen({ navigation }) {
     handleCloseModal();
   };
 
+  
+
+  
+
   return (
     <ImageBackground source={require('../images/doula.jpg')} style={styles.homescreen}>
       <View style={styles.banner}><Text style={styles.bannerText}>Doulalar</Text></View>
@@ -129,6 +135,8 @@ export default function DoulaScreen({ navigation }) {
 
         {userType !== "pregnant" && (
           <View style={styles.row}>
+
+
             <TextInput
               style={styles.input}
               placeholder="Doula Name"

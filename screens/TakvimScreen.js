@@ -598,7 +598,7 @@ export default function TakvimScreen({ route, navigation }) {
   return (
 
     <ImageBackground source={require('../images/doula.jpg')} style={styles.container}>
-      <View style={[styles.flex1, { justifyContent: 'flex-end' }]}>
+      <View style={[styles.flex1]}>
         <TouchableOpacity style={styles.banner} onPress={copyToClipboard}>
           <Text style={styles.txt}>📢 Process 📢</Text>
 
@@ -660,6 +660,10 @@ export default function TakvimScreen({ route, navigation }) {
 
               <TouchableOpacity style={styles.taskBtn} onPress={clearCalendar}>
                 <Text style={styles.txt2}>Takvimi Temizle</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.taskBtn} onPress={fetchCompletedTest}>
+                <Text style={styles.txt2}>Tamamlanan görevler</Text>
               </TouchableOpacity>
 
             </View>
@@ -936,7 +940,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   flex1: {
-    flex: 1,
+    paddingTop: 55,
     justifyContent: 'center'
   },
   flex1row: {
