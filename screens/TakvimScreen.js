@@ -908,7 +908,7 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   taskBtn: {
-    backgroundColor: '#E2E2E2',
+    backgroundColor: '#F0EFEF',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 5,
@@ -939,10 +939,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold'
   },
+
   flex1: {
-    paddingTop: 55,
+    paddingTop: 50,
     justifyContent: 'center'
   },
+  
   flex1row: {
     flex: 1,
     flexDirection: 'row',
